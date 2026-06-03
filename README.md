@@ -66,6 +66,30 @@ On first run the app will create simple demo products and users (see `lib/test-c
 
 Note: Role gating and authentication in this project are intentionally minimal for demonstration purposes and are not production-ready.
 
+## Workflow — How it works
+
+This section outlines the typical request flows and how the app interacts with the database and services.
+
+- Client requests:
+	- The user navigates to a page (e.g., `/` or `/order`). Next.js App Router serves the page; server components fetch data from MongoDB using the helpers in `lib/` and Mongoose models in `models/`.
+
+- Product listing & details:
+	- Server-side code queries the `Product` model to render lists and product details. Components receive product props and render UI with `components/` helpers.
+
+- Order creation flow:
+	- The order form posts data to a server action or API route. Server-side logic validates input, calculates price/units (see `lib/pricing.ts`), and creates an `Order` document via the `Order` model.
+	- After successful order creation the app may decrement inventory levels in `Product` (basic updates are handled in `lib/inventory.ts`).
+
+- Authentication & sessions:
+	- Minimal demo auth uses `lib/auth.ts` and `lib/session.ts` to create sessions. On login/signup the server sets a signed session cookie using `SESSION_SECRET`.
+	- Admin gating for demos is intentionally lightweight (query param `?role=admin`); replace with a proper RBAC system for production.
+
+- Seed data & startup:
+	- On initial startup the app runs seed logic (see `lib/test-credentials.ts` and seed helpers) to create demo users and products so you can try the app immediately.
+
+- Deployment considerations:
+	- In production you should secure auth flows, add proper role checks, and run inventory updates and financial calculations inside transactional or carefully guarded server-side code.
+
 ## Deployment
 
 Deploy to Vercel or another Node-compatible host. When deploying, set the required environment variables (`MONGODB_URI`, `SESSION_SECRET`) in your hosting platform.
